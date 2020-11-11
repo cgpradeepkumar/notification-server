@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 public class NotificationScheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationScheduler.class);
+    private static final String STATUS_PENDING = "P";
+    private static final String STATUS_SUCCESS = "S";
 
     @Autowired
     private EmailOutMapper emailOutMapper;
@@ -36,7 +38,7 @@ public class NotificationScheduler {
         LOGGER.info("Received emailOut list, size = {}", emailOuts.size());
         List<CompletableFuture<EmailOut>> futureList = new ArrayList<>();
         emailOuts.forEach(emailOut -> {
-            if (emailOut.getStatus().equals("P")) {
+            if (STATUS_PENDING.equals(emailOut.getStatus().trim())) {
                 LOGGER.info("Processing notification for emailOut, [{}]", emailOut);
                 futureList.add(CompletableFuture.supplyAsync(() -> notificationService.sendEmail(emailOut)));
             } else {
@@ -46,7 +48,7 @@ public class NotificationScheduler {
         List<EmailOut> completedList = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
         completedList.forEach(emailOut -> {
             LOGGER.info("Update status for emailId - {}", emailOut.getToId());
-            emailOut.setStatus("S");
+            emailOut.setStatus(STATUS_SUCCESS);
             emailOutMapper.update(emailOut);
         });
         LOGGER.info("Process completed.");
