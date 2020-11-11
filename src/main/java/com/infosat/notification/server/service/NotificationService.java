@@ -1,8 +1,6 @@
 package com.infosat.notification.server.service;
 
-import com.infosat.notification.server.mybatis.model.Customer;
-
-import java.util.Map;
+import com.infosat.notification.server.mybatis.model.EmailOut;
 
 /**
  * @author pradeepcg
@@ -10,7 +8,7 @@ import java.util.Map;
  */
 public interface NotificationService {
 
-    public Customer sendEmail(Customer customer);
+    public EmailOut sendEmail(EmailOut emailOut);
 
     public void sendSms();
 }

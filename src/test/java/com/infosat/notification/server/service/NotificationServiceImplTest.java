@@ -1,6 +1,6 @@
 package com.infosat.notification.server.service;
 
-import com.infosat.notification.server.mybatis.model.Customer;
+import com.infosat.notification.server.mybatis.model.EmailOut;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,12 +25,12 @@ public class NotificationServiceImplTest {
     @Test
     public void testSendEmail() {
         Assert.assertNotNull(notificationService);
-        Customer customer = new Customer();
-        customer.setCustomerName("Pradeepkumar");
-        customer.setEmail("cgpradeepkumar@gmail.com");
-        customer.setId(1);
-        customer.setNextService(new Date());
-        customer.setNotificationStatus("PENDING");
-        notificationService.sendEmail(customer);
+        EmailOut emailOut = new EmailOut();
+//        emailOut.setToId("Pradeepkumar");
+        emailOut.setToId("cgpradeepkumar@gmail.com");
+        emailOut.setId(1);
+        emailOut.setEventTime(new Date());
+        emailOut.setStatus("P");
+        notificationService.sendEmail(emailOut);
     }
 }

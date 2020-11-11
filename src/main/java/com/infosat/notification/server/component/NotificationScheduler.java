@@ -1,7 +1,7 @@
 package com.infosat.notification.server.component;
 
-import com.infosat.notification.server.mybatis.mapper.CustomerMapper;
-import com.infosat.notification.server.mybatis.model.Customer;
+import com.infosat.notification.server.mybatis.mapper.EmailOutMapper;
+import com.infosat.notification.server.mybatis.model.EmailOut;
 import com.infosat.notification.server.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class NotificationScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationScheduler.class);
 
     @Autowired
-    private CustomerMapper customerMapper;
+    private EmailOutMapper emailOutMapper;
 
     @Autowired
     private NotificationService notificationService;
@@ -32,18 +32,22 @@ public class NotificationScheduler {
 //    @Scheduled(fixedRate = 10000)
     public void runNotifications() {
         LOGGER.info("Starting notification service.");
-        List<Customer> customers = customerMapper.findAll();
-        LOGGER.info("Received customer list, size = {}", customers.size());
-        List<CompletableFuture<Customer>> futureList = new ArrayList<>();
-        customers.forEach(customer -> {
-            LOGGER.info("Processing notification for customer, [{}]", customer);
-            futureList.add(CompletableFuture.supplyAsync(() -> notificationService.sendEmail(customer)));
+        List<EmailOut> emailOuts = emailOutMapper.findAll();
+        LOGGER.info("Received emailOut list, size = {}", emailOuts.size());
+        List<CompletableFuture<EmailOut>> futureList = new ArrayList<>();
+        emailOuts.forEach(emailOut -> {
+            if (emailOut.getStatus().equals("P")) {
+                LOGGER.info("Processing notification for emailOut, [{}]", emailOut);
+                futureList.add(CompletableFuture.supplyAsync(() -> notificationService.sendEmail(emailOut)));
+            } else {
+                LOGGER.info("Skipping emailOut, [{}]", emailOut);
+            }
         });
-        List<Customer> completedList = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
-        completedList.forEach(customer -> {
-            LOGGER.info("Update status for emailId - {}", customer.getEmail());
-            customer.setNotificationStatus("COMPLETED");
-            customerMapper.update(customer);
+        List<EmailOut> completedList = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
+        completedList.forEach(emailOut -> {
+            LOGGER.info("Update status for emailId - {}", emailOut.getToId());
+            emailOut.setStatus("S");
+            emailOutMapper.update(emailOut);
         });
         LOGGER.info("Process completed.");
     }

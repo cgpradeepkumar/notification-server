@@ -1,10 +1,11 @@
-DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS Email_Out;
 
-CREATE TABLE customers (
-    id INTEGER NOT NULL AUTO_INCREMENT,
-    customer_name VARCHAR(128) NOT NULL,
-    email VARCHAR(128),
-    next_service DATE,
-    notification_status VARCHAR(10),
-    PRIMARY KEY (id)
+CREATE TABLE Email_Out(
+	ID int IDENTITY(1,1) NOT NULL,
+	EmailBody varchar(5000) NULL,
+	EmailSubject varchar(500) NULL,
+	FromID varchar(50) NULL,
+	ToID varchar(500) NULL,
+	Status char(10) NULL,
+	Eventtime datetime NULL
 );

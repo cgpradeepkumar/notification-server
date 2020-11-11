@@ -1,6 +1,6 @@
 package com.infosat.notification.server.service;
 
-import com.infosat.notification.server.mybatis.model.Customer;
+import com.infosat.notification.server.mybatis.model.EmailOut;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -36,26 +36,26 @@ public class NotificationServiceImpl implements NotificationService {
     private EmailService emailService;
 
     @Override
-    public Customer sendEmail(Customer customer) {
-        LOGGER.info("Notification received for mailId = [{}]", customer.getEmail());
+    public EmailOut sendEmail(EmailOut emailOut) {
+        LOGGER.info("Notification received for mailId = [{}]", emailOut.getToId());
         try {
 //            Template template = freeMarkerConfigurer.getConfiguration().getTemplate("sample.ftl");
             Template template = configuration.getTemplate("sample.ftl");
             Map<String, Object> data = new HashMap<>();
-            data.put("recipientName", customer.getCustomerName());
+            data.put("recipientName", emailOut.getToId());
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            data.put("nextService", dateFormat.format(customer.getNextService()));
+            data.put("nextService", dateFormat.format(emailOut.getEventTime()));
             data.put("senderName", "Conference");
             String body = FreeMarkerTemplateUtils.processTemplateIntoString(template, data);
             String subject = "Vehicle service reminder!";
-            emailService.sendMimeMessage(customer.getEmail(), subject, body);
+            emailService.sendMimeMessage(emailOut.getToId(), subject, body);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TemplateException e) {
             e.printStackTrace();
         }
-        LOGGER.info("Notification processed for mailId = [{}]", customer.getEmail());
-        return customer;
+        LOGGER.info("Notification processed for mailId = [{}]", emailOut.getToId());
+        return emailOut;
     }
 
     @Override
