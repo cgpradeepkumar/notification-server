@@ -26,8 +26,8 @@ public class EmailOutMapperTest {
         Assert.assertNotNull(emailOutMapper);
         Assert.assertNotNull(emailOutMapper.findAll());
 
-        emailOutMapper.findAll().forEach(emailOut -> {
-            System.out.println(emailOut.getToId());
-        });
+//        emailOutMapper.findAll().forEach(emailOut -> {
+//            System.out.println(emailOut.getToId());
+//        });
     }
 }
