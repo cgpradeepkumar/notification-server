@@ -26,7 +26,7 @@ public class NotificationServiceImplTest {
     public void testSendEmail() {
         Assert.assertNotNull(notificationService);
         EmailOut emailOut = new EmailOut();
-//        emailOut.setToId("Pradeepkumar");
+        emailOut.setFromId("conferencepad@gmail.com");
         emailOut.setToId("cgpradeepkumar@gmail.com");
         emailOut.setId(1);
         emailOut.setEventTime(new Date());

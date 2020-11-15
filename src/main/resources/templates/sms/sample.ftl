@@ -1,0 +1,1 @@
+Dear ${customerName}, your policy ${policyNumber} is expiring on ${expiryDate}. Kindly renew your policy ${link}

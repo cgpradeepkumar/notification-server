@@ -14,6 +14,8 @@ public class EmailOut {
     private String toId;
     private String status;
     private Date eventTime;
+    private String createdBy;
+    private String attachments;
 
     public EmailOut() {
     }
@@ -74,11 +76,26 @@ public class EmailOut {
         this.eventTime = eventTime;
     }
 
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(String attachments) {
+        this.attachments = attachments;
+    }
+
     @Override
     public String toString() {
         return "EmailOut{" +
                 "id=" + id +
-                ", emailBody='" + emailBody + '\'' +
                 ", emailSubject='" + emailSubject + '\'' +
                 ", fromId='" + fromId + '\'' +
                 ", toId='" + toId + '\'' +

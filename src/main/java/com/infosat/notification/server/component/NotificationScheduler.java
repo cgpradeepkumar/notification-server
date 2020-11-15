@@ -1,12 +1,18 @@
 package com.infosat.notification.server.component;
 
+import com.infosat.notification.server.mybatis.mapper.CustomerMapper;
 import com.infosat.notification.server.mybatis.mapper.EmailOutMapper;
+import com.infosat.notification.server.mybatis.mapper.InsuranceDetailMapper;
+import com.infosat.notification.server.mybatis.mapper.ReminderMessageMapper;
+import com.infosat.notification.server.mybatis.model.Customer;
 import com.infosat.notification.server.mybatis.model.EmailOut;
+import com.infosat.notification.server.mybatis.model.InsuranceDetail;
 import com.infosat.notification.server.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +35,44 @@ public class NotificationScheduler {
     private EmailOutMapper emailOutMapper;
 
     @Autowired
+    private InsuranceDetailMapper insuranceDetailMapper;
+
+    @Autowired
+    private CustomerMapper customerMapper;
+
+    @Autowired
+    private ReminderMessageMapper reminderMessageMapper;
+
+    @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private NotificationBuilder notificationBuilder;
+
+    public void checkForExpiry() {
+        LOGGER.info("Checking expiring policies...");
+        List<InsuranceDetail> insuranceDetails = insuranceDetailMapper.findAll();
+        LOGGER.info("Number of policies found, {}", insuranceDetails.size());
+
+        LOGGER.info("Creating records in Email Out Table.");
+        insuranceDetails.forEach(insuranceDetail -> {
+            Customer customer = customerMapper.findCustomerById(insuranceDetail.getCustomerId());
+            EmailOut emailOut = notificationBuilder.buildEmailMessage(customer, insuranceDetail);
+
+            if (CollectionUtils.isEmpty(emailOutMapper.findExisting(emailOut))) {
+                emailOutMapper.insert(emailOut);
+                reminderMessageMapper.insert(notificationBuilder.buildSms(customer, insuranceDetail));
+            } else {
+                LOGGER.info("Skipping as record exist in Email Out Table. [{}]", emailOut);
+            }
+        });
+        LOGGER.info("Record creation completed on Email Out Table.");
+    }
 
 //    @Scheduled(fixedRate = 10000)
     public void runNotifications() {
-        LOGGER.info("Starting notification service.");
-        List<EmailOut> emailOuts = emailOutMapper.findAll();
+        LOGGER.info("Running notification process.");
+        List<EmailOut> emailOuts = emailOutMapper.findAllPending();
         LOGGER.info("Received emailOut list, size = {}", emailOuts.size());
         List<CompletableFuture<EmailOut>> futureList = new ArrayList<>();
         emailOuts.forEach(emailOut -> {

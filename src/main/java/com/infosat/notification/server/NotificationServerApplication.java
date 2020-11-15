@@ -19,8 +19,7 @@ public class NotificationServerApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		notificationScheduler.checkForExpiry();
 		notificationScheduler.runNotifications();
 	}
-
-
 }
